@@ -5,7 +5,8 @@ import json
 # Producten die gecontroleerd moeten worden
 PRODUCTS = {
     "cb26": "https://www.tennispro.nl/cb-26-elektronische-bespanmachine-zonder-standaard-841168.html",
-    "slinger_toernooipakket": "https://www.tennispro.nl/slinger-tennis-toernooipakket-841876.html"
+    "slinger_toernooipakket": "https://www.tennispro.nl/slinger-tennis-toernooipakket-841876.html",
+    "cb14pro": "https://www.tennispro.nl/cb14pro-elektronische-bespanmachine-3760.html"
 }
 
 results = {}
