@@ -3,5 +3,10 @@
     "status": "green",
     "text": "Op voorraad",
     "count": "5"
+  },
+  "slinger_toernooipakket": {
+    "status": "red",
+    "text": "Niet op voorraad",
+    "count": "0"
   }
 }
