@@ -2,12 +2,12 @@ name: Check Tennispro Stock
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # Draait elke 30 minuten
-  workflow_dispatch: # Zorgt dat je het ook handmatig kunt starten
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 jobs:
   check:
-    runs-runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
