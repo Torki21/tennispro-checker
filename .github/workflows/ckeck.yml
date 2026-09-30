@@ -1,0 +1,30 @@
+name: Check Tennispro Stock
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Draait elke 30 minuten
+  workflow_dispatch: # Zorgt dat je het ook handmatig kunt starten
+
+jobs:
+  check:
+    runs-runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run checker
+        run: python checker.py
+
+      - name: Commit & Push updates
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add stock.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update stock status" && git push)
