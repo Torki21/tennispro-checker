@@ -25,20 +25,20 @@ for product_id, url in PRODUCTS.items():
             options = re.findall(r'"label":\s*"([^"]+)".*?"is_in_stock":\s*(true|false)', html)
             
             if options:
-                # Zet eerst bekende maten voor dit product standaard op 'red'
+                # Zet bekende maten vooraf op 'red' (zodat afwezige opties zoals 1.20MM op rood staan)
                 if product_id == "tour_ace_rough":
                     results["tour_ace_rough_120"] = {"status": "red", "text": "Niet op voorraad"}
                     results["tour_ace_rough_125"] = {"status": "red", "text": "Niet op voorraad"}
                     results["tour_ace_rough_130"] = {"status": "red", "text": "Niet op voorraad"}
 
-                # Update alleen de maten die daadwerkelijk in de lijst staan en op voorraad zijn
+                # Update alleen de maten die daadwerkelijk op de pagina aanwezig én op voorraad zijn
                 for label, in_stock in options:
                     clean_label = re.sub(r'[^a-zA-Z0-9]', '', label).lower()
                     var_key = f"{product_id}_{clean_label}"
                     if in_stock == "true":
                         results[var_key] = {"status": "green", "text": "Op voorraad"}
             else:
-                # Standaard controle voor producten zonder keuzemenu
+                # Standaard controle voor enkelvoudige producten
                 match = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
                 if match:
                     val = match.group(1).strip()
