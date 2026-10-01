@@ -21,31 +21,36 @@ for product_id, url in PRODUCTS.items():
         with urllib.request.urlopen(req) as response:
             html = response.read().decode('utf-8')
 
-            # Zoek naar specifieke opties/diktes (zoals 1.20, 1.25, 1.30)
+            # Zoek naar specifieke opties/diktes in de broncode
             options = re.findall(r'"label":\s*"([^"]+)".*?"is_in_stock":\s*(true|false)', html)
             
             if options:
+                # Zet eerst bekende maten voor dit product standaard op 'red'
+                if product_id == "tour_ace_rough":
+                    results["tour_ace_rough_120"] = {"status": "red", "text": "Niet op voorraad"}
+                    results["tour_ace_rough_125"] = {"status": "red", "text": "Niet op voorraad"}
+                    results["tour_ace_rough_130"] = {"status": "red", "text": "Niet op voorraad"}
+
+                # Update alleen de maten die daadwerkelijk in de lijst staan en op voorraad zijn
                 for label, in_stock in options:
                     clean_label = re.sub(r'[^a-zA-Z0-9]', '', label).lower()
                     var_key = f"{product_id}_{clean_label}"
-                    status = "green" if in_stock == "true" else "red"
-                    results[var_key] = {"status": status, "text": "Op voorraad" if status == "green" else "Niet op voorraad"}
-            
-            # Standaard controle als er geen opties zijn
-            match = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
-            if match:
-                val = match.group(1).strip()
-                if "+" in val or "voorraad" in val.lower():
-                    results[product_id] = {"status": "green", "text": "Op voorraad", "count": val}
-                else:
-                    results[product_id] = {"status": "red", "text": "Niet op voorraad", "count": val}
+                    if in_stock == "true":
+                        results[var_key] = {"status": "green", "text": "Op voorraad"}
             else:
-                if not options:
+                # Standaard controle voor producten zonder keuzemenu
+                match = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
+                if match:
+                    val = match.group(1).strip()
+                    if "+" in val or "voorraad" in val.lower():
+                        results[product_id] = {"status": "green", "text": "Op voorraad", "count": val}
+                    else:
+                        results[product_id] = {"status": "red", "text": "Niet op voorraad", "count": val}
+                else:
                     results[product_id] = {"status": "green", "text": "Op voorraad"}
 
     except Exception as e:
         print(f"Fout bij ophalen van {product_id}: {e}")
-        results[product_id] = {"status": "green", "text": "Op voorraad"}
 
 # Opslaan in stock.json
 with open('stock.json', 'w', encoding='utf-8') as f:
