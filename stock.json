@@ -8,5 +8,10 @@
     "status": "red",
     "text": "Niet op voorraad",
     "count": "0"
+  },
+  "cb14pro": {
+    "status": "green",
+    "text": "Op voorraad",
+    "count": "5+"
   }
 }
