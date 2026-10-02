@@ -21,42 +21,49 @@ for product_id, url in PRODUCTS.items():
         with urllib.request.urlopen(req) as response:
             html = response.read().decode('utf-8')
 
-            # Specifieke behandeling voor snaren met verschillende maten
+            # Specifieke behandeling voor snaren met verschillende maten (Tour Ace Rough)
             if product_id == "tour_ace_rough":
-                # Standaard zetten we alle 3 de maten op "Niet op voorraad"
                 sizes = {
                     "tour_ace_rough_120": {"status": "red", "text": "Niet op voorraad"},
                     "tour_ace_rough_125": {"status": "red", "text": "Niet op voorraad"},
                     "tour_ace_rough_130": {"status": "red", "text": "Niet op voorraad"}
                 }
                 
-                # Zoek naar aanwezige maten en hun voorraadstatus in de broncode
-                matches = re.findall(r'1\.([0-9]{2})\s*MM.*?Stock\s*([0-9\+]+)', html, re.IGNORECASE | re.DOTALL)
-                
-                if matches:
-                    for gauge, stock_val in matches:
-                        key = f"tour_ace_rough_1{gauge}"
-                        sizes[key] = {"status": "green", "text": "Op voorraad", "count": f"Stock {stock_val}"}
-                else:
-                    # Alternatieve check via JSON opties in de HTML
-                    options = re.findall(r'"label":\s*"([^"]+)".*?"is_in_stock":\s*(true|false)', html)
+                # Check opties/maten
+                options = re.findall(r'"label":\s*"([^"]+)".*?"is_in_stock":\s*(true|false)', html)
+                if options:
                     for label, in_stock in options:
                         clean = re.sub(r'[^0-9]', '', label)
-                        if clean in ["120", "125", "130"] and in_stock == "true":
-                            sizes[f"tour_ace_rough_{clean}"] = {"status": "green", "text": "Op voorraad"}
-
+                        if clean in ["120", "125", "130"]:
+                            if in_stock == "true":
+                                sizes[f"tour_ace_rough_{clean}"] = {"status": "green", "text": "Op voorraad"}
+                            else:
+                                sizes[f"tour_ace_rough_{clean}"] = {"status": "red", "text": "Niet op voorraad"}
                 results.update(sizes)
 
             else:
-                # Standaard controle voor enkelvoudige producten
-                match = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
-                if match:
-                    val = match.group(1).strip()
-                    if "+" in val or "voorraad" in val.lower():
-                        results[product_id] = {"status": "green", "text": "Op voorraad", "count": val}
-                    else:
+                # Controle voor gewone producten (CB-26, CB14Pro, Slinger)
+                # 1. Controleer via JSON-data of class indicatoren
+                is_out_of_stock = (
+                    '"is_in_stock":false' in html.replace(" ", "") or 
+                    'class="out-of-stock"' in html.lower() or
+                    'uit voorraad' in html.lower() or
+                    'momenteel niet beschikbaar' in html.lower()
+                )
+                
+                # 2. Zoek naar expliciete voorraadaantallen
+                match_qty = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
+                
+                if is_out_of_stock:
+                    results[product_id] = {"status": "red", "text": "Niet op voorraad"}
+                elif match_qty:
+                    val = match_qty.group(1).strip()
+                    if "0" in val and "+" not in val:
                         results[product_id] = {"status": "red", "text": "Niet op voorraad", "count": val}
+                    else:
+                        results[product_id] = {"status": "green", "text": "Op voorraad", "count": val}
                 else:
+                    # Als 'In winkelwagen' knop aanwezig is en geen out-of-stock melding
                     results[product_id] = {"status": "green", "text": "Op voorraad"}
 
     except Exception as e:
