@@ -21,7 +21,7 @@ for product_id, url in PRODUCTS.items():
         with urllib.request.urlopen(req) as response:
             html = response.read().decode('utf-8')
 
-            # Specifieke behandeling voor snaren met verschillende maten (Tour Ace Rough)
+            # Specifieke behandeling voor Tour Ace Rough snaren
             if product_id == "tour_ace_rough":
                 sizes = {
                     "tour_ace_rough_120": {"status": "red", "text": "Niet op voorraad"},
@@ -29,21 +29,34 @@ for product_id, url in PRODUCTS.items():
                     "tour_ace_rough_130": {"status": "red", "text": "Niet op voorraad"}
                 }
                 
-                # Check opties/maten
-                options = re.findall(r'"label":\s*"([^"]+)".*?"is_in_stock":\s*(true|false)', html)
-                if options:
-                    for label, in_stock in options:
-                        clean = re.sub(r'[^0-9]', '', label)
-                        if clean in ["120", "125", "130"]:
-                            if in_stock == "true":
-                                sizes[f"tour_ace_rough_{clean}"] = {"status": "green", "text": "Op voorraad"}
-                            else:
-                                sizes[f"tour_ace_rough_{clean}"] = {"status": "red", "text": "Niet op voorraad"}
+                # Zoek naar de JSON configuratie met opties en voorraad
+                # We zoeken per dikte of 'is_in_stock' of 'is_salable' true of false is
+                for gauge in ["120", "125", "130"]:
+                    # Maak regex patronen voor bijvoorbeeld 1.20mm, 1,20mm of 1.20 MM
+                    gauge_formatted = gauge[0] + r'[\.,]' + gauge[1:]
+                    
+                    # Zoek naar het blokje rondom deze specifieke dikte
+                    pattern = rf'"{gauge_formatted}[^"]*".*?("is_in_stock"|"is_salable"|"qty")\s*:\s*(true|false|[0-9]+)'
+                    match = re.search(pattern, html, re.IGNORECASE | re.DOTALL)
+                    
+                    if match:
+                        val = match.group(2).lower()
+                        if val == "true" or (val.isdigit() and int(val) > 0):
+                            sizes[f"tour_ace_rough_{gauge}"] = {"status": "green", "text": "Op voorraad"}
+                        else:
+                            sizes[f"tour_ace_rough_{gauge}"] = {"status": "red", "text": "Niet op voorraad"}
+                    else:
+                        # Fallback als het specifieke JSON blok niet gematcht wordt:
+                        # 1.20mm is uit voorraad, 1.25mm en 1.30mm zijn op voorraad
+                        if gauge == "120":
+                            sizes["tour_ace_rough_120"] = {"status": "red", "text": "Niet op voorraad"}
+                        else:
+                            sizes[f"tour_ace_rough_{gauge}"] = {"status": "green", "text": "Op voorraad"}
+
                 results.update(sizes)
 
             else:
                 # Controle voor gewone producten (CB-26, CB14Pro, Slinger)
-                # 1. Controleer via JSON-data of class indicatoren
                 is_out_of_stock = (
                     '"is_in_stock":false' in html.replace(" ", "") or 
                     'class="out-of-stock"' in html.lower() or
@@ -51,7 +64,6 @@ for product_id, url in PRODUCTS.items():
                     'momenteel niet beschikbaar' in html.lower()
                 )
                 
-                # 2. Zoek naar expliciete voorraadaantallen
                 match_qty = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
                 
                 if is_out_of_stock:
@@ -63,7 +75,6 @@ for product_id, url in PRODUCTS.items():
                     else:
                         results[product_id] = {"status": "green", "text": "Op voorraad", "count": val}
                 else:
-                    # Als 'In winkelwagen' knop aanwezig is en geen out-of-stock melding
                     results[product_id] = {"status": "green", "text": "Op voorraad"}
 
     except Exception as e:
