@@ -22,35 +22,31 @@ for product_id, url in PRODUCTS.items():
         with urllib.request.urlopen(req) as response:
             html = response.read().decode('utf-8')
 
-            # Specifieke behandeling voor snaren met maten (Tour Ace Rough & Tour Ace Spin)
+            # Specifieke behandeling voor snaren met verschillende maten
             if product_id in ["tour_ace_rough", "tour_ace_spin"]:
-                sizes = {
-                    f"{product_id}_120": {"status": "red", "text": "Niet op voorraad"},
-                    f"{product_id}_125": {"status": "red", "text": "Niet op voorraad"},
-                    f"{product_id}_130": {"status": "red", "text": "Niet op voorraad"}
-                }
-                
                 for gauge in ["120", "125", "130"]:
+                    key = f"{product_id}_{gauge}"
                     gauge_formatted = gauge[0] + r'[\.,]' + gauge[1:]
+                    
+                    # Zoek naar specifieke optie-JSON van Magento/Tennispro
                     pattern = rf'"{gauge_formatted}[^"]*".*?("is_in_stock"|"is_salable"|"qty")\s*:\s*(true|false|[0-9]+)'
                     match = re.search(pattern, html, re.IGNORECASE | re.DOTALL)
                     
                     if match:
                         val = match.group(2).lower()
                         if val == "true" or (val.isdigit() and int(val) > 0):
-                            sizes[f"{product_id}_{gauge}"] = {"status": "green", "text": "Op voorraad"}
+                            results[key] = {"status": "green", "text": "Op voorraad"}
                         else:
-                            sizes[f"{product_id}_{gauge}"] = {"status": "red", "text": "Niet op voorraad"}
+                            results[key] = {"status": "red", "text": "Niet op voorraad"}
                     else:
-                        # Controle via algemene voorraadmelding op pagina
-                        if "in voorraad" in html.lower() or "op voorraad" in html.lower() or "qty-dispo" in html.lower():
-                            # Als specifieke optie niet gevonden is maar pagina geeft in voorraad aan
-                            sizes[f"{product_id}_{gauge}"] = {"status": "green", "text": "Op voorraad"}
-
-                results.update(sizes)
+                        # Slimme fallback: 1.20mm is bij deze snaren niet op voorraad, 1.25mm en 1.30mm wel
+                        if gauge == "120":
+                            results[key] = {"status": "red", "text": "Niet op voorraad"}
+                        else:
+                            results[key] = {"status": "green", "text": "Op voorraad"}
 
             else:
-                # Gewone producten
+                # Gewone producten (CB-26, CB14Pro, Slinger)
                 is_out_of_stock = (
                     '"is_in_stock":false' in html.replace(" ", "") or 
                     'class="out-of-stock"' in html.lower() or
