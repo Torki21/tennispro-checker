@@ -21,22 +21,32 @@ for product_id, url in PRODUCTS.items():
         with urllib.request.urlopen(req) as response:
             html = response.read().decode('utf-8')
 
-            # Zoek naar specifieke opties/diktes in de broncode
-            options = re.findall(r'"label":\s*"([^"]+)".*?"is_in_stock":\s*(true|false)', html)
-            
-            if options:
-                # Zet bekende maten vooraf op 'red' (zodat afwezige opties zoals 1.20MM op rood staan)
-                if product_id == "tour_ace_rough":
-                    results["tour_ace_rough_120"] = {"status": "red", "text": "Niet op voorraad"}
-                    results["tour_ace_rough_125"] = {"status": "red", "text": "Niet op voorraad"}
-                    results["tour_ace_rough_130"] = {"status": "red", "text": "Niet op voorraad"}
+            # Specifieke behandeling voor snaren met verschillende maten
+            if product_id == "tour_ace_rough":
+                # Standaard zetten we alle 3 de maten op "Niet op voorraad"
+                sizes = {
+                    "tour_ace_rough_120": {"status": "red", "text": "Niet op voorraad"},
+                    "tour_ace_rough_125": {"status": "red", "text": "Niet op voorraad"},
+                    "tour_ace_rough_130": {"status": "red", "text": "Niet op voorraad"}
+                }
+                
+                # Zoek naar aanwezige maten en hun voorraadstatus in de broncode
+                matches = re.findall(r'1\.([0-9]{2})\s*MM.*?Stock\s*([0-9\+]+)', html, re.IGNORECASE | re.DOTALL)
+                
+                if matches:
+                    for gauge, stock_val in matches:
+                        key = f"tour_ace_rough_1{gauge}"
+                        sizes[key] = {"status": "green", "text": "Op voorraad", "count": f"Stock {stock_val}"}
+                else:
+                    # Alternatieve check via JSON opties in de HTML
+                    options = re.findall(r'"label":\s*"([^"]+)".*?"is_in_stock":\s*(true|false)', html)
+                    for label, in_stock in options:
+                        clean = re.sub(r'[^0-9]', '', label)
+                        if clean in ["120", "125", "130"] and in_stock == "true":
+                            sizes[f"tour_ace_rough_{clean}"] = {"status": "green", "text": "Op voorraad"}
 
-                # Update alleen de maten die daadwerkelijk op de pagina aanwezig én op voorraad zijn
-                for label, in_stock in options:
-                    clean_label = re.sub(r'[^a-zA-Z0-9]', '', label).lower()
-                    var_key = f"{product_id}_{clean_label}"
-                    if in_stock == "true":
-                        results[var_key] = {"status": "green", "text": "Op voorraad"}
+                results.update(sizes)
+
             else:
                 # Standaard controle voor enkelvoudige producten
                 match = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
