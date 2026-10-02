@@ -18,23 +18,23 @@
     "text": "Niet op voorraad"
   },
   "tour_ace_rough_125": {
-    "status": "red",
-    "text": "Niet op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "tour_ace_rough_130": {
-    "status": "red",
-    "text": "Niet op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "tour_ace_spin_120": {
     "status": "red",
     "text": "Niet op voorraad"
   },
   "tour_ace_spin_125": {
-    "status": "red",
-    "text": "Niet op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "tour_ace_spin_130": {
-    "status": "red",
-    "text": "Niet op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   }
 }
