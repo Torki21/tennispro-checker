@@ -27,6 +27,7 @@ jobs:
           python check_tour_ace_spin_888856.py
           python check_comfort_elite.py
           python check_comfort_elite_888822.py
+          python check_tour_ace_spin_888854.py
 
       - name: Commit and push changes
         run: |
