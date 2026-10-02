@@ -6,7 +6,8 @@ PRODUCTS = {
     "cb26": "https://www.tennispro.nl/cb-26-elektronische-bespanmachine-zonder-standaard-841168.html",
     "slinger_toernooipakket": "https://www.tennispro.nl/slinger-tennis-toernooipakket-841876.html",
     "cb14pro": "https://www.tennispro.nl/cb14pro-elektronische-bespanmachine-3760.html",
-    "tour_ace_rough": "https://www.tennispro.nl/bobine-tennispro-tour-ace-rough-200-meter-888848.html"
+    "tour_ace_rough": "https://www.tennispro.nl/bobine-tennispro-tour-ace-rough-200-meter-888848.html",
+    "tour_ace_spin": "https://www.tennispro.nl/tennispro-tour-ace-spin-spoel-200-meter-888852.html"
 }
 
 results = {}
@@ -21,42 +22,35 @@ for product_id, url in PRODUCTS.items():
         with urllib.request.urlopen(req) as response:
             html = response.read().decode('utf-8')
 
-            # Specifieke behandeling voor Tour Ace Rough snaren
-            if product_id == "tour_ace_rough":
+            # Specifieke behandeling voor snaren met maten (Tour Ace Rough & Tour Ace Spin)
+            if product_id in ["tour_ace_rough", "tour_ace_spin"]:
                 sizes = {
-                    "tour_ace_rough_120": {"status": "red", "text": "Niet op voorraad"},
-                    "tour_ace_rough_125": {"status": "red", "text": "Niet op voorraad"},
-                    "tour_ace_rough_130": {"status": "red", "text": "Niet op voorraad"}
+                    f"{product_id}_120": {"status": "red", "text": "Niet op voorraad"},
+                    f"{product_id}_125": {"status": "red", "text": "Niet op voorraad"},
+                    f"{product_id}_130": {"status": "red", "text": "Niet op voorraad"}
                 }
                 
-                # Zoek naar de JSON configuratie met opties en voorraad
-                # We zoeken per dikte of 'is_in_stock' of 'is_salable' true of false is
                 for gauge in ["120", "125", "130"]:
-                    # Maak regex patronen voor bijvoorbeeld 1.20mm, 1,20mm of 1.20 MM
                     gauge_formatted = gauge[0] + r'[\.,]' + gauge[1:]
-                    
-                    # Zoek naar het blokje rondom deze specifieke dikte
                     pattern = rf'"{gauge_formatted}[^"]*".*?("is_in_stock"|"is_salable"|"qty")\s*:\s*(true|false|[0-9]+)'
                     match = re.search(pattern, html, re.IGNORECASE | re.DOTALL)
                     
                     if match:
                         val = match.group(2).lower()
                         if val == "true" or (val.isdigit() and int(val) > 0):
-                            sizes[f"tour_ace_rough_{gauge}"] = {"status": "green", "text": "Op voorraad"}
+                            sizes[f"{product_id}_{gauge}"] = {"status": "green", "text": "Op voorraad"}
                         else:
-                            sizes[f"tour_ace_rough_{gauge}"] = {"status": "red", "text": "Niet op voorraad"}
+                            sizes[f"{product_id}_{gauge}"] = {"status": "red", "text": "Niet op voorraad"}
                     else:
-                        # Fallback als het specifieke JSON blok niet gematcht wordt:
-                        # 1.20mm is uit voorraad, 1.25mm en 1.30mm zijn op voorraad
-                        if gauge == "120":
-                            sizes["tour_ace_rough_120"] = {"status": "red", "text": "Niet op voorraad"}
-                        else:
-                            sizes[f"tour_ace_rough_{gauge}"] = {"status": "green", "text": "Op voorraad"}
+                        # Controle via algemene voorraadmelding op pagina
+                        if "in voorraad" in html.lower() or "op voorraad" in html.lower() or "qty-dispo" in html.lower():
+                            # Als specifieke optie niet gevonden is maar pagina geeft in voorraad aan
+                            sizes[f"{product_id}_{gauge}"] = {"status": "green", "text": "Op voorraad"}
 
                 results.update(sizes)
 
             else:
-                # Controle voor gewone producten (CB-26, CB14Pro, Slinger)
+                # Gewone producten
                 is_out_of_stock = (
                     '"is_in_stock":false' in html.replace(" ", "") or 
                     'class="out-of-stock"' in html.lower() or
