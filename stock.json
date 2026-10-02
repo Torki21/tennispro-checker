@@ -1,7 +1,7 @@
 {
   "cb26": {
-    "status": "red",
-    "text": "Niet op voorraad",
+    "status": "green",
+    "text": "Op voorraad",
     "count": "5"
   },
   "slinger_toernooipakket": {
@@ -18,13 +18,11 @@
     "text": "Niet op voorraad"
   },
   "tour_ace_rough_125": {
-    "status": "green",
-    "text": "Op voorraad",
-    "count": "Stock 5+"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "tour_ace_rough_130": {
-    "status": "green",
-    "text": "Op voorraad",
-    "count": "Stock 5+"
+    "status": "red",
+    "text": "Niet op voorraad"
   }
 }
