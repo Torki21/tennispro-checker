@@ -24,6 +24,7 @@ jobs:
           python check_tour_ace_spin.py
           python check_slinger.py
           python check_cb14pro.py
+          python check_tour_ace_spin_888856.py
 
       - name: Commit and push changes
         run: |
