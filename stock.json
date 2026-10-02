@@ -35,5 +35,17 @@
   "tour_ace_spin_130": {
     "status": "green",
     "text": "Op voorraad"
+  },
+  "tour_ace_spin_888856_120": {
+    "status": "red",
+    "text": "Niet op voorraad"
+  },
+  "tour_ace_spin_888856_125": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_spin_888856_130": {
+    "status": "green",
+    "text": "Op voorraad"
   }
 }
