@@ -13,8 +13,18 @@
     "text": "Op voorraad",
     "count": "5+"
   },
-  "tour_ace_rough": {
+  "tour_ace_rough_120": {
+    "status": "red",
+    "text": "Niet op voorraad"
+  },
+  "tour_ace_rough_125": {
     "status": "green",
-    "text": "Op voorraad"
+    "text": "Op voorraad",
+    "count": "Stock 5+"
+  },
+  "tour_ace_rough_130": {
+    "status": "green",
+    "text": "Op voorraad",
+    "count": "Stock 5+"
   }
 }
