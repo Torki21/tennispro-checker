@@ -20,31 +20,37 @@ try:
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
-        is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
-                  'uit voorraad' in html.lower() or 
-                  'momenteel niet beschikbaar' in html.lower())
+        # We controleren de bekende snaardiktes voor dit artikel
+        gauges = ['120', '125', '130']
         
-        # Zoek naar aantal stuks in de HTML
-        match_qty = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
-        
-        if is_out:
-            results["cb26"] = {"status": "red", "text": "Niet op voorraad"}
-        elif match_qty:
-            raw_val = match_qty.group(1).strip()
-            # Haal enkel het getal op
-            numbers = re.findall(r'\d+', raw_val)
-            count = int(numbers[0]) if numbers else 0
+        for g in gauges:
+            key = f"comfort_elite_888824_{g}"
             
-            if count == 0:
-                results["cb26"] = {"status": "red", "text": "Niet op voorraad"}
-            elif 1 <= count <= 3:
-                results["cb26"] = {"status": "orange", "text": f"Nog {count} op voorraad"}
+            # Controle op uitverkocht op paginaniveau/variantniveau
+            is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
+                      'uit voorraad' in html.lower() or 
+                      'momenteel niet beschikbaar' in html.lower())
+            
+            match_qty = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
+            
+            if is_out:
+                results[key] = {"status": "red", "text": "Niet op voorraad"}
+            elif match_qty:
+                raw_val = match_qty.group(1).strip()
+                numbers = re.findall(r'\d+', raw_val)
+                count = int(numbers[0]) if numbers else 0
+                
+                if count == 0:
+                    results[key] = {"status": "red", "text": "Niet op voorraad"}
+                elif 1 <= count <= 3:
+                    results[key] = {"status": "orange", "text": f"Nog {count} stuks op voorraad"}
+                else:
+                    results[key] = {"status": "green", "text": "Op voorraad"}
             else:
-                results["cb26"] = {"status": "green", "text": "Op voorraad"}
-        else:
-            results["cb26"] = {"status": "green", "text": "Op voorraad"}
+                results[key] = {"status": "green", "text": "Op voorraad"}
+
 except Exception as e:
-    print(f"Fout bij CB-26: {e}")
+    print(f"Fout bij Comfort Elite 888824: {e}")
 
 with open(stock_file, 'w', encoding='utf-8') as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
