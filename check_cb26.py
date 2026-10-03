@@ -24,13 +24,23 @@ try:
                   'uit voorraad' in html.lower() or 
                   'momenteel niet beschikbaar' in html.lower())
         
+        # Zoek naar aantal stuks in de HTML
         match_qty = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
         
         if is_out:
             results["cb26"] = {"status": "red", "text": "Niet op voorraad"}
         elif match_qty:
-            val = match_qty.group(1).strip()
-            results["cb26"] = {"status": "green", "text": "Op voorraad", "count": val}
+            raw_val = match_qty.group(1).strip()
+            # Haal enkel het getal op
+            numbers = re.findall(r'\d+', raw_val)
+            count = int(numbers[0]) if numbers else 0
+            
+            if count == 0:
+                results["cb26"] = {"status": "red", "text": "Niet op voorraad"}
+            elif 1 <= count <= 3:
+                results["cb26"] = {"status": "orange", "text": f"Nog {count} op voorraad"}
+            else:
+                results["cb26"] = {"status": "green", "text": "Op voorraad"}
         else:
             results["cb26"] = {"status": "green", "text": "Op voorraad"}
 except Exception as e:
