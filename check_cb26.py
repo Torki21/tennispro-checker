@@ -20,25 +20,25 @@ try:
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
+        # Controleer of het product niet op voorraad is
         is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
                   'uit voorraad' in html.lower() or 
                   'momenteel niet beschikbaar' in html.lower())
         
-        # Zoek naar aantal stuks in de HTML
+        # Zoek naar het aantal stuks in de HTML van Tennispro
         match_qty = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
         
         if is_out:
             results["cb26"] = {"status": "red", "text": "Niet op voorraad"}
         elif match_qty:
             raw_val = match_qty.group(1).strip()
-            # Haal enkel het getal op
             numbers = re.findall(r'\d+', raw_val)
             count = int(numbers[0]) if numbers else 0
             
             if count == 0:
                 results["cb26"] = {"status": "red", "text": "Niet op voorraad"}
             elif 1 <= count <= 3:
-                results["cb26"] = {"status": "orange", "text": f"Nog {count} op voorraad"}
+                results["cb26"] = {"status": "orange", "text": f"Nog {count} stuks op voorraad"}
             else:
                 results["cb26"] = {"status": "green", "text": "Op voorraad"}
         else:
