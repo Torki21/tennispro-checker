@@ -12,8 +12,8 @@
     "text": "Op voorraad"
   },
   "tour_ace_rough_120": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "tour_ace_rough_125": {
     "status": "green",
