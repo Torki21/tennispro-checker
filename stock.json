@@ -126,5 +126,21 @@
   "comfort_elite_120": {
     "status": "red",
     "text": "Niet op voorraad"
+  },
+  "babolat_81109": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "babolat_777156": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "babolat_146112": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "babolat_254829": {
+    "status": "green",
+    "text": "Op voorraad"
   }
 }
