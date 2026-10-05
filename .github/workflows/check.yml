@@ -28,6 +28,10 @@ jobs:
           python check_comfort_elite.py
           python check_comfort_elite_888822.py
           python check_tour_ace_spin_888854.py
+          python check_babolat_81109.py
+          python check_babolat_146112.py
+          python check_babolat_254829.py
+          python check_babolat_777156.py
 
       - name: Commit and push changes
         run: |
