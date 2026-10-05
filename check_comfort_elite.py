@@ -4,7 +4,7 @@ import json
 import os
 
 URL = "https://www.tennispro.nl/tennispro-comfort-elite-haspel-200-meter-888824.html"
-headers = {'User-Agent': 'Mozilla/5.0'}
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
 stock_file = 'stock.json'
 results = {}
@@ -15,30 +15,31 @@ if os.path.exists(stock_file):
     except:
         results = {}
 
+PREFIX = "comfort_elite"
+ALL_GAUGES = ['120', '125', '130']
+
 try:
     req = urllib.request.Request(URL, headers=headers)
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
-        # We controleren de bekende snaardiktes voor dit artikel
-        gauges = ['120', '125', '130']
+        # Zoek dynamisch alle opties uit de dropdown HTML (e.g. "1.25MM Stock 5+")
+        options = re.findall(r'(\d[.,]\d{2})\s*MM.*?(Stock\s*\d+\+?|Niet op voorraad|Uit verkocht)?', html, re.IGNORECASE)
         
-        for g in gauges:
-            key = f"comfort_elite_888824_{g}"
+        found_gauges = set()
+        
+        for dikte_raw, status_raw in options:
+            g_key = dikte_raw.replace('.', '').replace(',', '')
+            key = f"{PREFIX}_{g_key}"
+            found_gauges.add(g_key)
             
-            # Controle op uitverkocht op paginaniveau/variantniveau
-            is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
-                      'uit voorraad' in html.lower() or 
-                      'momenteel niet beschikbaar' in html.lower())
+            status_clean = status_raw.lower() if status_raw else ''
             
-            match_qty = re.search(r'class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<', html, re.IGNORECASE)
-            
-            if is_out:
+            if 'niet' in status_clean or 'uit' in status_clean:
                 results[key] = {"status": "red", "text": "Niet op voorraad"}
-            elif match_qty:
-                raw_val = match_qty.group(1).strip()
-                numbers = re.findall(r'\d+', raw_val)
-                count = int(numbers[0]) if numbers else 0
+            elif 'stock' in status_clean:
+                numbers = re.findall(r'\d+', status_clean)
+                count = int(numbers[0]) if numbers else 5
                 
                 if count == 0:
                     results[key] = {"status": "red", "text": "Niet op voorraad"}
@@ -49,8 +50,13 @@ try:
             else:
                 results[key] = {"status": "green", "text": "Op voorraad"}
 
+        # Zet eventuele verdwenen diktes automatisch op rood
+        for g in ALL_GAUGES:
+            if g not in found_gauges:
+                results[f"{PREFIX}_{g}"] = {"status": "red", "text": "Niet op voorraad"}
+
 except Exception as e:
-    print(f"Fout bij Comfort Elite 888824: {e}")
+    print(f"Fout bij {PREFIX}: {e}")
 
 with open(stock_file, 'w', encoding='utf-8') as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
