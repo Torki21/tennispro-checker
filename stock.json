@@ -36,8 +36,8 @@
     "text": "Op voorraad"
   },
   "tour_ace_spin_888856_120": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "tour_ace_spin_888856_125": {
     "status": "green",
@@ -56,8 +56,8 @@
     "text": "Op voorraad"
   },
   "comfort_elite_888822_120": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "comfort_elite_888822_125": {
     "status": "green",
@@ -68,8 +68,8 @@
     "text": "Op voorraad"
   },
   "tour_ace_spin_888854_120": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "tour_ace_spin_888854_125": {
     "status": "green",
@@ -94,5 +94,37 @@
   "cb26_841168": {
     "status": "orange",
     "text": "Nog 3 stuks op voorraad"
+  },
+  "tour_ace_rough_888848_125": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_rough_888848_130": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_rough_888848_120": {
+    "status": "red",
+    "text": "Niet op voorraad"
+  },
+  "tour_ace_spin_888852_125": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_spin_888852_130": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_spin_888852_120": {
+    "status": "red",
+    "text": "Niet op voorraad"
+  },
+  "slinger_841876": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "comfort_elite_120": {
+    "status": "red",
+    "text": "Niet op voorraad"
   }
 }
