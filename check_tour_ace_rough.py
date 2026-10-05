@@ -15,8 +15,7 @@ if os.path.exists(stock_file):
     except:
         results = {}
 
-PREFIX = "tour_ace_rough"
-# Standaard bekende diktes om bij te houden (zodat als er een verdwijnt uit de dropdown, deze op rood gaat)
+PREFIX = "tour_ace_rough_888848"
 ALL_GAUGES = ['120', '125', '130']
 
 try:
@@ -24,14 +23,12 @@ try:
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
-        # 1. Zoek dynamisch alle opties uit de dropdown HTML
-        # Matched bijv. "1.25MM Stock 5+" of "1.20MM Niet op voorraad"
+        # Zoek dynamisch alle opties uit de dropdown HTML (e.g. "1.25MM Stock 5+")
         options = re.findall(r'(\d[.,]\d{2})\s*MM.*?(Stock\s*\d+\+?|Niet op voorraad|Uit verkocht)?', html, re.IGNORECASE)
         
         found_gauges = set()
         
         for dikte_raw, status_raw in options:
-            # Maak de sleutel schoon: "1.25" -> "125"
             g_key = dikte_raw.replace('.', '').replace(',', '')
             key = f"{PREFIX}_{g_key}"
             found_gauges.add(g_key)
@@ -53,7 +50,7 @@ try:
             else:
                 results[key] = {"status": "green", "text": "Op voorraad"}
 
-        # 2. Zet eventuele verdwenen diktes automatisch op rood
+        # Zet eventuele verdwenen diktes automatisch op rood
         for g in ALL_GAUGES:
             if g not in found_gauges:
                 results[f"{PREFIX}_{g}"] = {"status": "red", "text": "Niet op voorraad"}
