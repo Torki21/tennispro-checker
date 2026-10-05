@@ -90,5 +90,9 @@
   "comfort_elite_888824_130": {
     "status": "green",
     "text": "Op voorraad"
+  },
+  "cb26_841168": {
+    "status": "orange",
+    "text": "Nog 3 stuks op voorraad"
   }
 }
