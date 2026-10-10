@@ -22,32 +22,21 @@ try:
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
-        # Zoek alle diktematen in de HTML (bijv. 1.25MM, 1.30MM met Stock status)
-        matches = re.findall(r'(1\.\d{2})\s*MM.*?Stock\s*([^<]+)', html, re.DOTALL | re.IGNORECASE)
+        # Algemene status
+        is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
+                  'uit voorraad' in html.lower() or 
+                  'niet op voorraad' in html.lower())
         
-        found_variants = False
+        results[PREFIX] = {"status": "red" if is_out else "green", "text": "Niet op voorraad" if is_out else "Op voorraad"}
 
-        if matches:
-            for gauge, stock_str in matches:
-                found_variants = True
-                key = f"{PREFIX}_{gauge}"
-                
-                if "uitverkocht" in stock_str.lower() or "0" in stock_str:
-                    results[key] = {"status": "red", "text": "Niet op voorraad"}
-                elif any(c in stock_str for c in ["1", "2", "3"]):
-                    results[key] = {"status": "orange", "text": "Nog beperkt op voorraad"}
-                else:
-                    results[key] = {"status": "green", "text": "Op voorraad"}
+        # Zoek alle varianten/diktes in de pagina HTML
+        matches = re.findall(r'(1\.\d{2})\s*MM', html, re.IGNORECASE)
+        found_gauges = set(matches)
 
-        # Fallback indien geen losse maten worden gevonden
-        if not found_variants:
-            is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
-                      'uit voorraad' in html.lower() or 
-                      'niet op voorraad' in html.lower())
-            if is_out:
-                results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
-            else:
-                results[PREFIX] = {"status": "green", "text": "Op voorraad"}
+        for gauge in found_gauges:
+            key = f"{PREFIX}_{gauge}"
+            # Als de maat in de HTML staat en de pagina is in stock, markeer als groen
+            results[key] = {"status": "green" if not is_out else "red", "text": "Op voorraad" if not is_out else "Niet op voorraad"}
 
 except Exception as e:
     print(f"Fout bij {PREFIX}: {e}")
