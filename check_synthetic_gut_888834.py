@@ -22,36 +22,21 @@ try:
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
-        # Controleer globale uitverkocht-status
+        # Algemene status
         is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
                   'uit voorraad' in html.lower() or 
-                  'momenteel niet beschikbaar' in html.lower() or
                   'niet op voorraad' in html.lower())
+        
+        results[PREFIX] = {"status": "red" if is_out else "green", "text": "Niet op voorraad" if is_out else "Op voorraad"}
 
-        # Zoek eventuele diktes/varianten in de opties
-        options = re.findall(r'<option[^>]*>([^<]+)</option>', html)
-        found_variants = False
+        # Zoek alle varianten/diktes in de pagina HTML
+        matches = re.findall(r'(1\.\d{2})\s*MM', html, re.IGNORECASE)
+        found_gauges = set(matches)
 
-        for opt in options:
-            opt_clean = opt.strip()
-            # Zoek naar diktematen zoals 1.25, 1.30, 1.35
-            match_gauge = re.search(r'(1\.\d{2})', opt_clean)
-            if match_gauge:
-                found_variants = True
-                gauge = match_gauge.group(1)
-                key = f"{PREFIX}_{gauge}"
-
-                if "uitverkocht" in opt_clean.lower() or "niet op voorraad" in opt_clean.lower():
-                    results[key] = {"status": "red", "text": "Niet op voorraad"}
-                else:
-                    results[key] = {"status": "green", "text": "Op voorraad"}
-
-        # Indien het product geen losse keuzemenu-opties heeft
-        if not found_variants:
-            if is_out:
-                results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
-            else:
-                results[PREFIX] = {"status": "green", "text": "Op voorraad"}
+        for gauge in found_gauges:
+            key = f"{PREFIX}_{gauge}"
+            # Als de maat in de HTML staat en de pagina is in stock, markeer als groen
+            results[key] = {"status": "green" if not is_out else "red", "text": "Op voorraad" if not is_out else "Niet op voorraad"}
 
 except Exception as e:
     print(f"Fout bij {PREFIX}: {e}")
