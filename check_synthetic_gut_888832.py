@@ -22,32 +22,28 @@ try:
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
-        # Controleer globale uitverkocht-status
-        is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
-                  'uit voorraad' in html.lower() or 
-                  'momenteel niet beschikbaar' in html.lower() or
-                  'niet op voorraad' in html.lower())
-
-        # Zoek eventuele diktes/varianten in de opties
-        options = re.findall(r'<option[^>]*>([^<]+)</option>', html)
+        # Zoek alle diktematen in de HTML (bijv. 1.25MM, 1.30MM met Stock status)
+        matches = re.findall(r'(1\.\d{2})\s*MM.*?Stock\s*([^<]+)', html, re.DOTALL | re.IGNORECASE)
+        
         found_variants = False
 
-        for opt in options:
-            opt_clean = opt.strip()
-            # Zoek naar diktematen zoals 1.25, 1.30, 1.35
-            match_gauge = re.search(r'(1\.\d{2})', opt_clean)
-            if match_gauge:
+        if matches:
+            for gauge, stock_str in matches:
                 found_variants = True
-                gauge = match_gauge.group(1)
                 key = f"{PREFIX}_{gauge}"
-
-                if "uitverkocht" in opt_clean.lower() or "niet op voorraad" in opt_clean.lower():
+                
+                if "uitverkocht" in stock_str.lower() or "0" in stock_str:
                     results[key] = {"status": "red", "text": "Niet op voorraad"}
+                elif any(c in stock_str for c in ["1", "2", "3"]):
+                    results[key] = {"status": "orange", "text": "Nog beperkt op voorraad"}
                 else:
                     results[key] = {"status": "green", "text": "Op voorraad"}
 
-        # Indien het product geen losse keuzemenu-opties heeft
+        # Fallback indien geen losse maten worden gevonden
         if not found_variants:
+            is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
+                      'uit voorraad' in html.lower() or 
+                      'niet op voorraad' in html.lower())
             if is_out:
                 results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
             else:
