@@ -22,14 +22,20 @@ try:
     with urllib.request.urlopen(req) as response:
         html = response.read().decode('utf-8')
         
+        # Strip HTML tags en vervang non-breaking spaces
+        clean_text = re.sub(r'<[^>]+>', ' ', html)
+        clean_text = clean_text.replace('&nbsp;', ' ')
+
+        # Controleer op uitverkocht-status
         is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
                   'uit voorraad' in html.lower() or 
                   'momenteel niet beschikbaar' in html.lower() or
                   'niet op voorraad' in html.lower())
         
-        match_qty = re.search(r'Available\s*stock\s*:\s*(\d+)', html, re.IGNORECASE)
+        # Zoek naar getallen rondom "Available stock" of "Stock"
+        match_qty = re.search(r'Available\s*stock\s*:?\s*(\d+)', clean_text, re.IGNORECASE)
         if not match_qty:
-            match_qty = re.search(r'Stock\s*:?\s*(\d+)', html, re.IGNORECASE)
+            match_qty = re.search(r'Stock\s*:?\s*(\d+)', clean_text, re.IGNORECASE)
 
         if is_out:
             results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
