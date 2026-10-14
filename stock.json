@@ -140,8 +140,8 @@
     "text": "Op voorraad"
   },
   "babolat_254829": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "orange",
+    "text": "Nog 1 stuks op voorraad"
   },
   "sports_tutor_4153": {
     "status": "orange",
