@@ -262,5 +262,9 @@
   "gamma_763237": {
     "status": "green",
     "text": "Op voorraad"
+  },
+  "gamma_788090": {
+    "status": "orange",
+    "text": "Nog 3 op voorraad"
   }
 }
