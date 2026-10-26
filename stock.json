@@ -92,8 +92,8 @@
     "text": "Op voorraad"
   },
   "cb26_841168": {
-    "status": "orange",
-    "text": "Nog 2 stuks op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "tour_ace_rough_888848_125": {
     "status": "green",
@@ -140,28 +140,28 @@
     "text": "Op voorraad"
   },
   "babolat_254829": {
-    "status": "orange",
-    "text": "Nog 1 stuks op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "sports_tutor_4153": {
-    "status": "orange",
-    "text": "Nog 2 stuks op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "tennis_twist_8405": {
     "status": "green",
     "text": "Op voorraad"
   },
   "tennispro_tour_851098": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "orange",
+    "text": "Nog 1 stuks op voorraad"
   },
   "tennispro_tour_851097": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "orange",
+    "text": "Nog 1 stuks op voorraad"
   },
   "cb_optie_8400": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "orange",
+    "text": "Nog 1 stuks op voorraad"
   },
   "tour_ace_888842": {
     "status": "green",
@@ -252,19 +252,43 @@
     "text": "Op voorraad"
   },
   "bullpadel_457646": {
-    "status": "orange",
-    "text": "Nog 3 op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "gamma_735090": {
-    "status": "orange",
-    "text": "Nog 1 op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "gamma_763237": {
-    "status": "orange",
-    "text": "Nog 3 op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "gamma_788090": {
-    "status": "orange",
-    "text": "Nog 3 op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_888844_1.20": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_888844_1.25": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_888844_1.30": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_888842_1.20": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_888842_1.25": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "tour_ace_888842_1.30": {
+    "status": "green",
+    "text": "Op voorraad"
   }
 }
