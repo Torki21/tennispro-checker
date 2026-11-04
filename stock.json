@@ -264,8 +264,8 @@
     "text": "Op voorraad"
   },
   "gamma_788090": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "tour_ace_888844_1.20": {
     "status": "green",
