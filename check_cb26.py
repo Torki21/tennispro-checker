@@ -3,7 +3,7 @@ import re
 import json
 import os
 
-URL = "https://www.tennispro.nl/cb-26-elektronische-bespanmachine-zonder-standaard-841168.html"
+URL = "https://https://www.tennispro.fr/products/machine-a-corder-cb-26-electronique-sans-pied.html"
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
 stock_file = 'stock.json'
