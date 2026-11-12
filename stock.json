@@ -290,5 +290,17 @@
   "tour_ace_888842_1.30": {
     "status": "green",
     "text": "Op voorraad"
+  },
+  "standaardoptie_cb14_cb10": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "bespanmachine_cb26": {
+    "status": "green",
+    "text": "Op voorraad"
+  },
+  "bespanmachine_cb14_pro": {
+    "status": "green",
+    "text": "Op voorraad"
   }
 }
