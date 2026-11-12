@@ -15,7 +15,7 @@ if os.path.exists(stock_file):
     except:
         results = {}
 
-PREFIX = "bespanmachine_cb14_pro"
+PREFIX = "cb14pro"
 
 try:
     req = urllib.request.Request(URL, headers=headers)
