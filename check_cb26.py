@@ -28,18 +28,40 @@ try:
     if not is_available:
         results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
     else:
-        # 2. Haal de gewone HTML-pagina op om het exacte aantal (1-3) te vinden
+        # 2. Haal de HTML-pagina op en zoek naar de exacte tekst ("Nog maar 2 op voorraad!")
         req_html = urllib.request.Request(HTML_URL, headers=headers)
         with urllib.request.urlopen(req_html) as response:
             html = response.read().decode('utf-8')
             clean_text = re.sub(r'<[^>]+>', ' ', html).replace('&nbsp;', ' ')
+            clean_text = re.sub(r'\s+', ' ', clean_text)
 
-            match_qty = re.search(r'(?:Available\s*stock|Stock|Voorraad)\s*:?\s*(\d+)', clean_text, re.IGNORECASE)
-            if not match_qty:
-                match_qty = re.search(r'"inventory_quantity"\s*:\s*(\d+)', html)
+            patterns_text = [
+                r'(?:Nog\s*(?:maar)?|Slechts|Laatste|Only)\s*(\d+)\s*(?:op\s*voorraad|stuks|in\s*stock|left)',
+                r'(?:Available\s*stock|Stock|Voorraad)\s*:?\s*(\d+)',
+                r'(\d+)\s*(?:op\s*voorraad|in\s*stock|disponibles?)'
+            ]
+            
+            count = None
+            for pat in patterns_text:
+                m = re.search(pat, clean_text, re.IGNORECASE)
+                if m:
+                    count = int(m.group(1))
+                    break
 
-            if match_qty:
-                count = int(match_qty.group(1))
+            if count is None:
+                patterns_html = [
+                    r'"inventory_quantity"\s*:\s*(\d+)',
+                    r'"inventoryQuantity"\s*:\s*(\d+)',
+                    r'"quantity"\s*:\s*(\d+)',
+                    r'data-inventory(?:-[a-z]+)?=["\'](\d+)["\']'
+                ]
+                for pat in patterns_html:
+                    m = re.search(pat, html, re.IGNORECASE)
+                    if m:
+                        count = int(m.group(1))
+                        break
+
+            if count is not None:
                 if count == 0:
                     results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
                 elif 1 <= count <= 3:
