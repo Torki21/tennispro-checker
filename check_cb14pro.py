@@ -1,9 +1,9 @@
 import urllib.request
-import re
 import json
 import os
 
-URL = "https://www.tennispro.nl/cb14pro-elektronische-bespanmachine-3760.html"
+# Shopify .js endpoint voor directe voorraadgegevens
+URL = "https://www.tennispro.nl/products/elektronische-bespanmachine-cb-14-pro.js"
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
 stock_file = 'stock.json'
@@ -15,35 +15,24 @@ if os.path.exists(stock_file):
     except:
         results = {}
 
-PREFIX = "cb14pro"
+PREFIX = "bespanmachine_cb14_pro"
 
 try:
     req = urllib.request.Request(URL, headers=headers)
     with urllib.request.urlopen(req) as response:
-        html = response.read().decode('utf-8')
+        data = json.loads(response.read().decode('utf-8'))
         
-        # Controleer op uitverkocht-status op de pagina of in de dropdown/opties
-        is_out = ('"is_in_stock":false' in html.replace(" ", "") or 
-                  'uit voorraad' in html.lower() or 
-                  'momenteel niet beschikbaar' in html.lower() or
-                  'niet op voorraad' in html.lower())
+        is_available = data.get('available', False)
+        variants = data.get('variants', [])
         
-        # Zoek naar beschikbare aantallen (e.g. Stock 5+ of qty-dispo)
-        match_qty = re.search(r'(?:Stock\s*(\d+)|class=["\'][^"\']*qty-dispo[^"\']*["\'][^>]*>([^<]+)<)', html, re.IGNORECASE)
-        
-        if is_out:
+        total_qty = None
+        if variants and 'inventory_quantity' in variants[0]:
+            total_qty = sum(v.get('inventory_quantity', 0) for v in variants if v.get('available'))
+
+        if not is_available:
             results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
-        elif match_qty:
-            raw_val = match_qty.group(1) or match_qty.group(2) or ''
-            numbers = re.findall(r'\d+', raw_val)
-            count = int(numbers[0]) if numbers else 5
-            
-            if count == 0:
-                results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
-            elif 1 <= count <= 3:
-                results[PREFIX] = {"status": "orange", "text": f"Nog {count} stuks op voorraad"}
-            else:
-                results[PREFIX] = {"status": "green", "text": "Op voorraad"}
+        elif total_qty is not None and 1 <= total_qty <= 3:
+            results[PREFIX] = {"status": "orange", "text": f"Nog {total_qty} op voorraad"}
         else:
             results[PREFIX] = {"status": "green", "text": "Op voorraad"}
 
