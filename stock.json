@@ -1,7 +1,7 @@
 {
   "cb26": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "orange",
+    "text": "Nog 2 op voorraad"
   },
   "slinger_toernooipakket": {
     "status": "green",
