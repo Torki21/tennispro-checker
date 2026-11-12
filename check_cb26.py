@@ -1,9 +1,10 @@
 import urllib.request
+import re
 import json
 import os
 
-# Shopify .js endpoint voor directe voorraadgegevens
-URL = "https://www.tennispro.nl/products/elektronische-snaarbespanmachine-cb-26-zonder-standaard.js"
+HTML_URL = "https://www.tennispro.nl/products/elektronische-snaarbespanmachine-cb-26-zonder-standaard"
+JS_URL = HTML_URL + ".js"
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
 
 stock_file = 'stock.json'
@@ -18,23 +19,35 @@ if os.path.exists(stock_file):
 PREFIX = "cb26"
 
 try:
-    req = urllib.request.Request(URL, headers=headers)
-    with urllib.request.urlopen(req) as response:
+    # 1. Check eerst de officiële Shopify beschikbaarheid via .js
+    req_js = urllib.request.Request(JS_URL, headers=headers)
+    with urllib.request.urlopen(req_js) as response:
         data = json.loads(response.read().decode('utf-8'))
-        
         is_available = data.get('available', False)
-        variants = data.get('variants', [])
-        
-        total_qty = None
-        if variants and 'inventory_quantity' in variants[0]:
-            total_qty = sum(v.get('inventory_quantity', 0) for v in variants if v.get('available'))
 
-        if not is_available:
-            results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
-        elif total_qty is not None and 1 <= total_qty <= 3:
-            results[PREFIX] = {"status": "orange", "text": f"Nog {total_qty} op voorraad"}
-        else:
-            results[PREFIX] = {"status": "green", "text": "Op voorraad"}
+    if not is_available:
+        results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
+    else:
+        # 2. Haal de gewone HTML-pagina op om het exacte aantal (1-3) te vinden
+        req_html = urllib.request.Request(HTML_URL, headers=headers)
+        with urllib.request.urlopen(req_html) as response:
+            html = response.read().decode('utf-8')
+            clean_text = re.sub(r'<[^>]+>', ' ', html).replace('&nbsp;', ' ')
+
+            match_qty = re.search(r'(?:Available\s*stock|Stock|Voorraad)\s*:?\s*(\d+)', clean_text, re.IGNORECASE)
+            if not match_qty:
+                match_qty = re.search(r'"inventory_quantity"\s*:\s*(\d+)', html)
+
+            if match_qty:
+                count = int(match_qty.group(1))
+                if count == 0:
+                    results[PREFIX] = {"status": "red", "text": "Niet op voorraad"}
+                elif 1 <= count <= 3:
+                    results[PREFIX] = {"status": "orange", "text": f"Nog {count} op voorraad"}
+                else:
+                    results[PREFIX] = {"status": "green", "text": "Op voorraad"}
+            else:
+                results[PREFIX] = {"status": "green", "text": "Op voorraad"}
 
 except Exception as e:
     print(f"Fout bij {PREFIX}: {e}")
