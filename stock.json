@@ -8,8 +8,8 @@
     "text": "Op voorraad"
   },
   "cb14pro": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "tour_ace_rough_120": {
     "status": "red",
