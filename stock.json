@@ -310,5 +310,9 @@
   "babolat_pure_aero_team_gen9_285": {
     "status": "green",
     "text": "Op voorraad"
+  },
+  "babolat_pure_aero_lite_gen9_270": {
+    "status": "orange",
+    "text": "Nog 1 op voorraad"
   }
 }
