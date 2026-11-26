@@ -1,15 +1,15 @@
 {
   "cb26": {
-    "status": "orange",
-    "text": "Nog 2 op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "slinger_toernooipakket": {
     "status": "green",
     "text": "Op voorraad"
   },
   "cb14pro": {
-    "status": "red",
-    "text": "Niet op voorraad"
+    "status": "green",
+    "text": "Op voorraad"
   },
   "tour_ace_rough_120": {
     "status": "red",
@@ -304,8 +304,8 @@
     "text": "Op voorraad"
   },
   "babolat_pure_aero_gen9_300": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "orange",
+    "text": "Nog 3 op voorraad"
   },
   "babolat_pure_aero_team_gen9_285": {
     "status": "green",
