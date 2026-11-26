@@ -128,8 +128,8 @@
     "text": "Niet op voorraad"
   },
   "babolat_81109": {
-    "status": "green",
-    "text": "Op voorraad"
+    "status": "red",
+    "text": "Niet op voorraad"
   },
   "babolat_777156": {
     "status": "green",
